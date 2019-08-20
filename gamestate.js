@@ -30,16 +30,10 @@ class Board {
         }
     }
 
-    clearEmpty() {
-        for (let i = 0; i < this.dims; i++) {
-            this.playArea[i].shift();
-        }
-    }
-
     assignNotation() {
         for (let i = 0; i < this.dims; i++) {
-            for (let j = this.dims; j > 0; j--) {
-                this.playArea[i][j] = new Square(j, this.alpha[i]);
+            for (let j = this.dims - 1; j >= 0; j--) {
+                this.playArea[i][j] = new Square(j + 1, this.alpha[i]);
             }
         }
     }
@@ -63,9 +57,7 @@ class Board {
 
 let board = new Board();
 board.createBoard();
-//console.log(board.board);
 
 board.assignNotation();
-board.clearEmpty();
 board.assignColor();
 console.log(board.playArea);
