@@ -1,8 +1,9 @@
 class Piece {
-    constructor(name, color, position) {
-        this.name = name;
+    constructor(color, position, name, value) {
         this.color = color;
         this.position = position;
+        this.name = name;
+        this.value = value;
     }
     valid_moves() {
         console.log("Generated move sequences:");
@@ -26,7 +27,7 @@ Movement structure:
 */
 class Rook extends Piece {
     constructor(color, position) {
-        super('rook', color, position);
+        super(color, position, 'rook', 5);
     }
     _generate_move_sequences() {
         return [
@@ -51,6 +52,6 @@ class Pawn extends Piece {
 
 const white_left_rook = new Rook('white', 'A1');
 
-console.log(white_left_rook.color);
+console.log(white_left_rook.value);
 
 //white_left_rook.valid_moves();
