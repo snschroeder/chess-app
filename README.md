@@ -65,4 +65,5 @@ Phase two: rendering
 Phase three: connectivity and usability
 
     create websocket to allow users to play over the web
+    allow move review via back and forward arrows    
     create a rudimentary AI - can I use an engine for this?
