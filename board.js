@@ -13,8 +13,8 @@ class Board {
 
     assignNotation() {
         for (let i = 0; i < this.dims; i++) {
-            for (let j = this.dims - 1; j >= 0; j--) {
-                this.playArea[i][j] = new Square(j + 1, this.alpha[i]);
+            for (let j = 0; j < this.dims; j++) {
+                this.playArea[i][j] = new Square(i, j);
             }
         }
     }

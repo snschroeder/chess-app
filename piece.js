@@ -6,9 +6,11 @@ class Piece {
         this.value = value;
     }
     valid_moves() {
-        console.log("Generated move sequences:");
-        console.log(this._generate_move_sequences());
-        return [];
+
+        let generatedMoves = this._generate_move_sequences();
+        console.log(generatedMoves)
+        return generatedMoves.filter(pos => !(pos[0] < 0 || pos[0] > 7 || pos[1] < 0 || pos[1] > 7))
+
     }
     _generate_move_sequences() {return [];}
 }
@@ -19,38 +21,17 @@ class Rook extends Piece {
         super(color, position, 'rook', 5);
     }
     _generate_move_sequences() {
-        let rankLeft = [], rankRight = [], fileUp = [], fileDown = [];
+        let moves = [];
         let file = this.position[0];
-        let rank = Number(this.position[1]);
-
-        if (rank < board.getDims()) {
-            for (let i = rank + 1; i <= board.getDims(); i++) {
-                fileUp.push(file + i);
-            }
+        let rank = this.position[1];
+        for (let i = 1; i < board.getDims(); i++) {
+            moves.push([file + i, rank]);
+            moves.push([file - i, rank]);
+            moves.push([file, rank + i]);
+            moves.push([file, rank - i]);
         }
-
-        if (rank > 1) {
-            for (let i = rank - 1; i >= 1; i--) {
-                fileDown.push(file + i);
-            }
-        }
-        if (file !== board.getAlpha()[board.getAlpha().length - 1]) {
-            for (let i = board.getAlpha().indexOf(file) + 1; i < 8; i++)
-            rankRight.push(board.getAlpha()[i] + rank);
-        }
-        if (file !== board.getAlpha()[0]) {
-            for (let i = board.getAlpha().indexOf(file) - 1; i >= 0; i--) {
-                rankLeft.push(board.getAlpha()[i] + rank);
-            }
-        }
-        return [
-            fileUp,
-            fileDown,
-            rankLeft,
-            rankRight
-        ]
-    }
-    
+        return moves;
+    }   
 }
 
 class Bishop extends Piece {
@@ -58,7 +39,8 @@ class Bishop extends Piece {
         super(color, position, 'bishop', 3);
     }
     _generate_move_sequences() {
-        let upRight = [], upLeft = [], downRight = [], downLeft = [];
+        let moves = [];
+        //let upRight = [], upLeft = [], downRight = [], downLeft = [];
         let file = this.position[0];
         this.rank = Number(this.position[1]);
 
@@ -121,7 +103,7 @@ class Pawn extends Piece {
         if (board.getAlpha().indexOf(file) < board.getDims() - 1) {
             capture.push(board.getAlpha()[board.getAlpha().indexOf(file) - 1] + (rank + 1));
         }
-        
+
         return [
             firstMove,
             normalMove,
@@ -134,5 +116,27 @@ class Pawn extends Piece {
 
 // console.log(white_left_rook.valid_moves());
 
-const white_pawn = new Pawn('white', 'B2');
-console.log(white_pawn.valid_moves())
+const white_rook = new Rook('white', [3, 3]);
+console.log(white_rook.valid_moves())
+
+// for (d = 1; d<8; ++d)
+
+// rank_up.push([rank - d, file])
+
+// rank_down.push([rank + d, file])
+
+// file_left.push([rank, file + d])
+
+// file_right.push([rank, file - d])
+
+// rank + d, file + d
+
+// rank + d, file - d
+
+// rank - d, file + d
+
+// rank - d, file - d
+
+// if spaceAhead contains sameColorPiece || isOffBoard
+//     move is invalid
+

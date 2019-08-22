@@ -1,8 +1,9 @@
 class Square {
-    constructor(number, letter) {
-        this.letter = letter;
-        this.number = number;
+    constructor(rank, file) {
+        this.letter = 'ABCDEFGH'[file];
+        this.number = rank + 1;
         this.notation = this.letter + this.number;
+        this.position = [file, rank];
         this.color;
         this.piece = null;
     }
