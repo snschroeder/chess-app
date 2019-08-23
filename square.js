@@ -13,4 +13,7 @@ class Square {
     setPiece(piece) {
         this.piece = piece;
     }
+    getPiece() {
+        return this.piece;
+    }
 }

@@ -11,4 +11,5 @@ board.createBoard();
 
 board.assignNotation();
 board.assignColor();
+board.populatePieces();
 console.log(board.playArea);
