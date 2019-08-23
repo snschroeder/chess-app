@@ -8,7 +8,6 @@ class Piece {
     valid_moves() {
 
         let generatedMoves = this._generate_move_sequences();
-        console.log(generatedMoves)
         return generatedMoves.filter(pos => !(pos[0] < 0 || pos[0] > 7 || pos[1] < 0 || pos[1] > 7))
 
     }
@@ -40,11 +39,15 @@ class Bishop extends Piece {
     }
     _generate_move_sequences() {
         let moves = [];
-        //let upRight = [], upLeft = [], downRight = [], downLeft = [];
         let file = this.position[0];
-        this.rank = Number(this.position[1]);
-
-
+        let rank = this.position[1];
+        for (let i = 1; i < board.getDims(); i++) {
+            moves.push([file + i, rank + i]);
+            moves.push([file + i, rank - i]);
+            moves.push([file - i, rank + i]);
+            moves.push([file -i, rank - i]);
+        }
+        return moves;
     }
 }
 
@@ -118,6 +121,9 @@ class Pawn extends Piece {
 
 const white_rook = new Rook('white', [3, 3]);
 console.log(white_rook.valid_moves())
+
+const white_bishop = new Bishop('white', [3, 3]);
+console.log(white_bishop.valid_moves());
 
 // for (d = 1; d<8; ++d)
 
