@@ -47,15 +47,9 @@ class Board {
         pieces.push(new Bishop('white', [0, 5]));
         pieces.push(new Queen('white', [0, 3]));
         pieces.push(new King('white', [0, 4]));
-        pieces.push(new Pawn('white', [1, 0]));
-        pieces.push(new Pawn('white', [1, 1]));
-        pieces.push(new Pawn('white', [1, 2]));
-        pieces.push(new Pawn('white', [1, 3]));
-        pieces.push(new Pawn('white', [1, 4]));
-        pieces.push(new Pawn('white', [1, 5]));
-        pieces.push(new Pawn('white', [1, 6]));
-        pieces.push(new Pawn('white', [1, 7]));
-
+        for (let i = 0; i < board.getDims(); i++) {
+            pieces.push(new Pawn('white', [1, i]));
+        }
         pieces.push(new Rook('black', [7, 0]));
         pieces.push(new Rook('black', [7, 7]));
         pieces.push(new Knight('black', [7, 1]));
@@ -64,20 +58,13 @@ class Board {
         pieces.push(new Bishop('black', [7, 5]));
         pieces.push(new Queen('black', [7, 3]));
         pieces.push(new King('black', [7, 4]));
-        pieces.push(new Pawn('black', [6, 0]));
-        pieces.push(new Pawn('black', [6, 1]));
-        pieces.push(new Pawn('black', [6, 2]));
-        pieces.push(new Pawn('black', [6, 3]));
-        pieces.push(new Pawn('black', [6, 4]));
-        pieces.push(new Pawn('black', [6, 5]));
-        pieces.push(new Pawn('black', [6, 6]));
-        pieces.push(new Pawn('black', [6, 7]));
-
+        for (let i = 0; i < board.getDims(); i++) {
+            pieces.push(new Pawn('black', [6, i]));
+        }
         pieces.forEach(piece => {
             board.getPlayArea()[piece.position[0]][piece.position[1]].setPiece(piece);
         });
     }
-
     getDims() {return this.dims;}
     getAlpha() {return this.alpha;}
     getSquare(rank, file) {return this.playArea[rank][file];}
@@ -103,8 +90,8 @@ class Piece {
         this.name = name;
         this.value = value;
     }
-    valid_moves() {
 
+    valid_moves() {
         let generatedMoves = this._generate_move_sequences();
         generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > board.getDims() -1 || pos[1] < 0 || pos[1] > board.getDims() -1)));
 
@@ -115,10 +102,10 @@ class Piece {
                 direction.splice(index + 1);
             }
         }))
-
         return generatedMoves;
 
     }
+
     _generate_move_sequences() {return [];}
     getColor() {return this.color;}
 }
@@ -127,15 +114,12 @@ class Piece {
 class Rook extends Piece {
     constructor(color, position) {
         super(color, position, 'rook', 5);
+        this.hasNotMoved = true;
     }
     _generate_move_sequences() {
-        let moves = [];
-        let rankUp = [];
-        let rankDown = [];
-        let fileRight = [];
-        let fileLeft = [];
-        let file = this.position[0];
-        let rank = this.position[1];
+        const moves = [], rankUp = [], rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
         for (let i = 1; i < board.getDims(); i++) {
             fileRight.push([file + i, rank]);
             fileLeft.push([file - i, rank]);
@@ -144,7 +128,8 @@ class Rook extends Piece {
         }
         moves.push(fileRight), moves.push(fileLeft), moves.push(rankUp), moves.push(rankDown);
         return moves;
-    }   
+    }
+    getHasNotMoved() {return this.hasNotMoved;}
 }
 
 class Bishop extends Piece {
@@ -152,13 +137,10 @@ class Bishop extends Piece {
         super(color, position, 'bishop', 3);
     }
     _generate_move_sequences() {
-        let moves = [];
-        let upRight = [];
-        let upLeft = [];
-        let downRight = [];
-        let downLeft = [];
+        const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [];
         let file = this.position[0];
         let rank = this.position[1];
+
         for (let i = 1; i < board.getDims(); i++) {
             upRight.push([file + i, rank + i]);
             upLeft.push([file + i, rank - i]);
@@ -175,7 +157,7 @@ class Knight extends Piece {
         super(color, position, 'knight', 3);
     }
     _generate_move_sequences() {
-        let moves = [];
+        const moves = [];
         let file = this.position[0];
         let rank = this.position[1];
         moves.push([file + 2, rank + 1])
@@ -189,6 +171,13 @@ class Knight extends Piece {
 
         return moves;
     }
+
+    valid_moves() {
+        let generatedMoves = this._generate_move_sequences();
+        generatedMoves = generatedMoves.filter(pos => !(pos[0] < 0 || pos[0] > board.getDims() -1 || pos[1] < 0 || pos[1] > board.getDims() -1));
+        generatedMoves = generatedMoves.filter(move => board.getSquare(move[0], move[1]).getPiece() === null || board.getSquare(move[0], move[1]).getPiece().getColor() !== this.color);
+        return generatedMoves;
+    }
 }
 
 class Queen extends Piece {
@@ -196,17 +185,10 @@ class Queen extends Piece {
         super(color, position, 'queen', 9);
     }
     _generate_move_sequences() {
-        let moves = [];
-        let upRight = [];
-        let upLeft = [];
-        let downRight = [];
-        let downLeft = [];
-        let rankUp = [];
-        let rankDown = [];
-        let fileRight = [];
-        let fileLeft = [];
-        let file = this.position[0];
-        let rank = this.position[1];
+        const moves = [];
+        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
         for (let i = 1; i < board.getDims(); i++) {
             upRight.push([file + i, rank + i]);
             upLeft.push([file + i, rank - i]);
@@ -226,40 +208,53 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(color, position) {
         super(color, position, 'king', Number.POSITIVE_INFINITY);
+        this.hasNotMoved = true;
     }
     _generate_move_sequences() {
-        let moves = [];
-        let file = this.position[0];
-        let rank = this.position[1];
-        moves.push([file + 1, rank + 1]);
-        moves.push([file + 1, rank - 1]);
-        moves.push([file - 1, rank + 1]);
-        moves.push([file -1, rank - 1]);
-        moves.push([file + 1, rank]);
-        moves.push([file - 1, rank]);
-        moves.push([file, rank + 1]);
-        moves.push([file, rank - 1]);
+        const moves = [];
+        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
+        upRight.push([file + 1, rank + 1]);
+        upLeft.push([file + 1, rank - 1]);
+        downRight.push([file - 1, rank + 1]);
+        downLeft.push([file -1, rank - 1]);
+        rankUp.push([file + 1, rank]);
+        rankDown.push([file - 1, rank]);
+        fileRight.push([file, rank + 1]);
+        fileLeft.push([file, rank - 1]);
+
+        moves.push(upRight), moves.push(upLeft), moves.push(downRight), moves.push(downLeft);
+        moves.push(rankUp), moves.push(rankDown), moves.push(fileRight), moves.push(fileLeft);
         return moves;
     }
+    getHasNotMoved() {return this.hasNotMoved;}
 }
 
 class Pawn extends Piece {
-    constructor(color, position) {super(color, position, 'pawn', 1);} //how would we declare a hasMoved boolean?
-    // valid_moves() {
-    //     const moves = [];
-    //     if (!board["E4"]) moves.push("E4");
-    //     if (board["F4"].owner = "opponent") moves.push("E4");
-    // }
+    constructor(color, position, hasNotMoved) {
+        super(color, position, 'pawn', 1);
+            this.hasNotMoved = true;
+    }
     _generate_move_sequences() {
-        let moves = [];
+        const moves = [];
+        const standardMove = [], twoSquareMove = [], captureRight = [], captureLeft = [];
         let file = this.position[0];
         let rank = this.position[1];
 
-        moves.push([file, rank + 1]);
-        moves.push([file, rank + 2]); //can move 2 square if the pawn has not moved this game
-        moves.push([file + 1, rank + 1]); //capture
-        moves.push([file - 1, rank + 1]); //capture
+        standardMove.push([file, rank + 1]);
+        twoSquareMove.push([file, rank + 2]); //can move 2 square if the pawn has not moved this game
+        captureRight.push([file + 1, rank + 1]); //capture
+        captureLeft.push([file - 1, rank + 1]); //capture
 
+        moves.push(standardMove), moves.push(twoSquareMove), moves.push(captureRight), moves.push(captureLeft);
         return moves;
     }
+
+        valid_moves() {
+            let generatedMoves = this._generate_move_sequences();
+            generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > board.getDims() -1 || pos[1] < 0 || pos[1] > board.getDims() -1)));
+    }
+
+    getHasNotMoved() {return this.hasNotMoved;}
 }
