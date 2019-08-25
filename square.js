@@ -7,13 +7,8 @@ class Square {
         this.color;
         this.piece = null;
     }
-    setColor(color) {
-        this.color = color;
-    }
-    setPiece(piece) {
-        this.piece = piece;
-    }
-    getPiece() {
-        return this.piece;
-    }
+    setColor(color) {this.color = color;}
+    setPiece(piece) {this.piece = piece;}
+    getPiece() {return this.piece;}
+    removePiece() {this.piece = null;}
 }
