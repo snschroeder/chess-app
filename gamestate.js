@@ -14,7 +14,7 @@ board.assignColor();
 board.populatePieces();
 console.log(board.playArea);
 
-console.log(board.playArea[7][2].getPiece().valid_moves());  
+console.log(board.playArea[1][2].getPiece().valid_moves());  
 
 // const white_rook = new Rook('white', [3, 3]);
 
