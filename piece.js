@@ -5,39 +5,38 @@ class Piece {
         this.name = name;
         this.value = value;
     }
-    valid_moves() {
 
+    //validates moves for rook, bishop, queen, and king - removes squares off the board, and stops trajectories one square short of same colored piece or on opposite colored piece
+    valid_moves() {
         let generatedMoves = this._generate_move_sequences();
-        generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > board.getDims() -1 || pos[1] < 0 || pos[1] > board.getDims() -1)));
+        generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > gameState.board.getDims() -1 || pos[1] < 0 || pos[1] > gameState.board.getDims() -1)));
 
         generatedMoves.forEach((direction) => direction.forEach((pos, index) => {
-            if (board.getSquare(pos[0], pos[1]).getPiece() !== null && board.getSquare(pos[0], pos[1]).getPiece().getColor() === this.color) {
+            if (gameState.board.getSquare(pos[0], pos[1]).getPiece() !== null && gameState.board.getSquare(pos[0], pos[1]).getPiece().getColor() === this.color) {
                 direction.splice(index);
-            } else if (board.getSquare(pos[0], pos[1]).getPiece() !== null && board.getSquare(pos[0], pos[1]).getPiece().getColor() !== this.color) {
+            } else if (gameState.board.getSquare(pos[0], pos[1]).getPiece() !== null && gameState.board.getSquare(pos[0], pos[1]).getPiece().getColor() !== this.color) {
                 direction.splice(index + 1);
             }
         }))
-
-        return generatedMoves;
+        return generatedMoves.flat();
 
     }
+
     _generate_move_sequences() {return [];}
     getColor() {return this.color;}
+    getPosition() {return this.position;}
 }
 
 
 class Rook extends Piece {
     constructor(color, position) {
         super(color, position, 'rook', 5);
+        this.hasNotMoved = true;
     }
     _generate_move_sequences() {
-        let moves = [];
-        let rankUp = [];
-        let rankDown = [];
-        let fileRight = [];
-        let fileLeft = [];
-        let file = this.position[0];
-        let rank = this.position[1];
+        let moves = [], rankUp = [], rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
         for (let i = 1; i < board.getDims(); i++) {
             fileRight.push([file + i, rank]);
             fileLeft.push([file - i, rank]);
@@ -46,7 +45,8 @@ class Rook extends Piece {
         }
         moves.push(fileRight), moves.push(fileLeft), moves.push(rankUp), moves.push(rankDown);
         return moves;
-    }   
+    }
+    getHasNotMoved() {return this.hasNotMoved;}
 }
 
 class Bishop extends Piece {
@@ -54,14 +54,11 @@ class Bishop extends Piece {
         super(color, position, 'bishop', 3);
     }
     _generate_move_sequences() {
-        let moves = [];
-        let upRight = [];
-        let upLeft = [];
-        let downRight = [];
-        let downLeft = [];
+        const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [];
         let file = this.position[0];
         let rank = this.position[1];
-        for (let i = 1; i < board.getDims(); i++) {
+
+        for (let i = 1; i < gameState.board.getDims(); i++) {
             upRight.push([file + i, rank + i]);
             upLeft.push([file + i, rank - i]);
             downRight.push([file - i, rank + i]);
@@ -77,7 +74,7 @@ class Knight extends Piece {
         super(color, position, 'knight', 3);
     }
     _generate_move_sequences() {
-        let moves = [];
+        const moves = [];
         let file = this.position[0];
         let rank = this.position[1];
         moves.push([file + 2, rank + 1])
@@ -91,6 +88,13 @@ class Knight extends Piece {
 
         return moves;
     }
+
+    valid_moves() {
+        let generatedMoves = this._generate_move_sequences();
+        generatedMoves = generatedMoves.filter(pos => !(pos[0] < 0 || pos[0] > gameState.board.getDims() -1 || pos[1] < 0 || pos[1] > gameState.board.getDims() -1));
+        generatedMoves = generatedMoves.filter(move => gameState.board.getSquare(move[0], move[1]).getPiece() === null || gameState.board.getSquare(move[0], move[1]).getPiece().getColor() !== this.color);
+        return generatedMoves;
+    }
 }
 
 class Queen extends Piece {
@@ -98,18 +102,11 @@ class Queen extends Piece {
         super(color, position, 'queen', 9);
     }
     _generate_move_sequences() {
-        let moves = [];
-        let upRight = [];
-        let upLeft = [];
-        let downRight = [];
-        let downLeft = [];
-        let rankUp = [];
-        let rankDown = [];
-        let fileRight = [];
-        let fileLeft = [];
-        let file = this.position[0];
-        let rank = this.position[1];
-        for (let i = 1; i < board.getDims(); i++) {
+        const moves = [];
+        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
+        for (let i = 1; i < gameState.board.getDims(); i++) {
             upRight.push([file + i, rank + i]);
             upLeft.push([file + i, rank - i]);
             downRight.push([file - i, rank + i]);
@@ -128,40 +125,98 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(color, position) {
         super(color, position, 'king', Number.POSITIVE_INFINITY);
+        this.hasNotMoved = true;
     }
     _generate_move_sequences() {
-        let moves = [];
-        let file = this.position[0];
-        let rank = this.position[1];
-        moves.push([file + 1, rank + 1]);
-        moves.push([file + 1, rank - 1]);
-        moves.push([file - 1, rank + 1]);
-        moves.push([file -1, rank - 1]);
-        moves.push([file + 1, rank]);
-        moves.push([file - 1, rank]);
-        moves.push([file, rank + 1]);
-        moves.push([file, rank - 1]);
+        const moves = [];
+        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        let file = this.position[0], rank = this.position[1];
+
+        upRight.push([file + 1, rank + 1]);
+        upLeft.push([file + 1, rank - 1]);
+        downRight.push([file - 1, rank + 1]);
+        downLeft.push([file -1, rank - 1]);
+        rankUp.push([file + 1, rank]);
+        rankDown.push([file - 1, rank]);
+        fileRight.push([file, rank + 1]);
+        fileLeft.push([file, rank - 1]);
+
+        moves.push(upRight), moves.push(upLeft), moves.push(downRight), moves.push(downLeft);
+        moves.push(rankUp), moves.push(rankDown), moves.push(fileRight), moves.push(fileLeft);
         return moves;
     }
+    getHasNotMoved() {return this.hasNotMoved;}
 }
 
 class Pawn extends Piece {
-    constructor(color, position) {super(color, position, 'pawn', 1);} //how would we declare a hasMoved boolean?
-    // valid_moves() {
-    //     const moves = [];
-    //     if (!board["E4"]) moves.push("E4");
-    //     if (board["F4"].owner = "opponent") moves.push("E4");
-    // }
+    constructor(color, position) {
+        super(color, position, 'pawn', 1);
+            this.hasNotMoved = true;
+    }
     _generate_move_sequences() {
-        let moves = [];
+
         let file = this.position[0];
         let rank = this.position[1];
 
-        moves.push([file, rank + 1]);
-        moves.push([file, rank + 2]); //can move 2 square if the pawn has not moved this game
-        moves.push([file + 1, rank + 1]); //capture
-        moves.push([file - 1, rank + 1]); //capture
 
-        return moves;
+        const white_moves = {
+            forward: [file + 1, rank],
+            twoSquares: [file + 2, rank],
+            capRight: [file + 1, rank + 1],
+            capLeft: [file + 1, rank - 1],
+        }
+
+        const black_moves = {
+            forward: [file - 1, rank],
+            twoSquares: [file - 2, rank],
+            capRight: [file - 1, rank + 1],
+            capLeft: [file - 1, rank - 1],
+        }
+
+        if (this.color === 'white') {
+            return white_moves;
+        } else {
+            return black_moves
+        }
     }
+
+    valid_moves() {
+        let generatedMoves = this._generate_move_sequences();
+        //if moving forward one space would put the pawn off the board in either direction, delete both 
+        if (generatedMoves.forward[0] > gameState.board.getDims() - 1 || generatedMoves.forward[0] < 0) {
+            delete generatedMoves.forward;
+            delete generatedMoves.twoSquares;
+        }
+        //if forward one space hits a same color piece, delete both forward options
+        if (gameState.board.getSquare(generatedMoves.forward[0], generatedMoves.forward[1]).getPiece() !== null && gameState.board.getSquare(generatedMoves.forward[0], generatedMoves.forward[1]).getPiece().getColor() === this.color) {
+            delete generatedMoves.forward;
+            delete generatedMoves.twoSquares;
+        }
+        //if forward one space is okay, we need to verify forward 2 spaces is also okay. If not, we delete forward two
+        if (generatedMoves.twoSquares !== undefined) {
+            if (gameState.board.getSquare(generatedMoves.twoSquares[0], generatedMoves.twoSquares[1]).getPiece() !== null && gameState.board.getSquare(generatedMoves.twoSquares[0], generatedMoves.twoSquares[1]).getPiece().getColor() === this.color) {
+                delete generatedMoves.twoSquares;
+            }
+        }
+        //check if capturing right is still on the board. If not, remove capRight
+        if (generatedMoves.capRight[0]> gameState.board.getDims() - 1 || generatedMoves.capRight[0] < 0 || generatedMoves.capRight[1]> gameState.board.getDims() - 1 || generatedMoves.capRight[1] < 0) {
+            delete generatedMoves.capRight;
+        }
+        //check if capturing left would is still on the board. If not, remove capLeft
+        if (generatedMoves.capLeft[0]> gameState.board.getDims() - 1 || generatedMoves.capLeft[0] < 0 || generatedMoves.capLeft[1]> gameState.board.getDims() - 1 || generatedMoves.capLeft[1] < 0) {
+            delete generatedMoves.capLeft;
+        }
+        //check that an enemy piece is present to capture right. If not, remove capRight
+        if (gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece().getColor() === this.color) {
+            delete generatedMoves.capRight;
+        }
+        //check that an enemy piece is present to capture left. If not, remove capLeft
+        if (gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece().getColor() === this.color) {
+            delete generatedMoves.capLeft;
+        }
+
+        return Object.values(generatedMoves);
+        }
+
+    getHasNotMoved() {return this.hasNotMoved;}
 }

@@ -34,10 +34,14 @@ class GameState {
 
     arrayComparator (possibleDest, desiredDest) {return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]);}
 }
-gameState = new GameState();
-gameState.board = new Board();
-gameState.board.createBoard();
 
+
+
+
+
+
+gameState = new GameState();
+gameState.board.createBoard();
 gameState.board.assignNotation();
 gameState.board.assignColor();
 gameState.board.populatePieces();

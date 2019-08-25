@@ -89,6 +89,7 @@ class Piece {
         this.value = value;
     }
 
+    //validates moves for rook, bishop, queen, and king - removes squares off the board, and stops trajectories one square short of same colored piece or on opposite colored piece
     valid_moves() {
         let generatedMoves = this._generate_move_sequences();
         generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > gameState.board.getDims() -1 || pos[1] < 0 || pos[1] > gameState.board.getDims() -1)));
@@ -302,12 +303,3 @@ class Pawn extends Piece {
 
     getHasNotMoved() {return this.hasNotMoved;}
 }
-
-
-/*
-pawn valid moves
-    if hasNotMoved === false, remove 2 square move
-    if square forward contains same color piece, blocked
-    if capLeft/capRight contain an enemy piece, keep the move, else remove it
-
-*/
