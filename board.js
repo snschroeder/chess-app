@@ -63,6 +63,19 @@ class Board {
             gameState.board.getPlayArea()[piece.position[0]][piece.position[1]].setPiece(piece);
         });
     }
+
+    findPieceByName(name, color) {
+        let piece;
+        gameState.board.playArea.forEach(row => row.forEach(col => {
+            if (col.getPiece() !== null) {
+                if (col.getPiece().getName() === name && col.getPiece().getColor() === color) {
+                    piece = col.getPiece();
+                }
+            }
+        }))  
+        return piece;
+    }
+
     getDims() {return this.dims;}
     getAlpha() {return this.alpha;}
     getSquare(rank, file) {return this.playArea[rank][file];}
@@ -89,7 +102,7 @@ class Piece {
         this.value = value;
     }
 
-    //validates moves for rook, bishop, queen, and king - removes squares off the board, and stops trajectories one square short of same colored piece or on opposite colored piece
+    //validates moves for rook, bishop, queen, and king
     valid_moves() {
         let generatedMoves = this._generate_move_sequences();
         generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > gameState.board.getDims() -1 || pos[1] < 0 || pos[1] > gameState.board.getDims() -1)));
@@ -108,6 +121,7 @@ class Piece {
     _generate_move_sequences() {return [];}
     getColor() {return this.color;}
     getPosition() {return this.position;}
+    getName() {return this.name;}
 }
 
 
@@ -120,7 +134,7 @@ class Rook extends Piece {
         let moves = [], rankUp = [], rankDown = [], fileRight = [], fileLeft = [];
         let file = this.position[0], rank = this.position[1];
 
-        for (let i = 1; i < board.getDims(); i++) {
+        for (let i = 1; i < gameState.board.getDims(); i++) {
             fileRight.push([file + i, rank]);
             fileLeft.push([file - i, rank]);
             rankUp.push([file, rank + i]);
@@ -138,8 +152,7 @@ class Bishop extends Piece {
     }
     _generate_move_sequences() {
         const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [];
-        let file = this.position[0];
-        let rank = this.position[1];
+        let file = this.position[0], rank = this.position[1];
 
         for (let i = 1; i < gameState.board.getDims(); i++) {
             upRight.push([file + i, rank + i]);
@@ -158,8 +171,7 @@ class Knight extends Piece {
     }
     _generate_move_sequences() {
         const moves = [];
-        let file = this.position[0];
-        let rank = this.position[1];
+        let file = this.position[0], rank = this.position[1];
         moves.push([file + 2, rank + 1])
         moves.push([file + 2, rank - 1])
         moves.push([file + 1, rank + 2])
@@ -185,8 +197,7 @@ class Queen extends Piece {
         super(color, position, 'queen', 9);
     }
     _generate_move_sequences() {
-        const moves = [];
-        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
         let file = this.position[0], rank = this.position[1];
 
         for (let i = 1; i < gameState.board.getDims(); i++) {
@@ -211,8 +222,7 @@ class King extends Piece {
         this.hasNotMoved = true;
     }
     _generate_move_sequences() {
-        const moves = [];
-        const upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
+        const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];
         let file = this.position[0], rank = this.position[1];
 
         upRight.push([file + 1, rank + 1]);
@@ -228,6 +238,11 @@ class King extends Piece {
         moves.push(rankUp), moves.push(rankDown), moves.push(fileRight), moves.push(fileLeft);
         return moves;
     }
+
+    castle(direction) {
+
+    }
+
     getHasNotMoved() {return this.hasNotMoved;}
 }
 
@@ -238,9 +253,7 @@ class Pawn extends Piece {
     }
     _generate_move_sequences() {
 
-        let file = this.position[0];
-        let rank = this.position[1];
-
+        let file = this.position[0], rank = this.position[1];
 
         const white_moves = {
             forward: [file + 1, rank],
@@ -289,13 +302,17 @@ class Pawn extends Piece {
         if (generatedMoves.capLeft[0]> gameState.board.getDims() - 1 || generatedMoves.capLeft[0] < 0 || generatedMoves.capLeft[1]> gameState.board.getDims() - 1 || generatedMoves.capLeft[1] < 0) {
             delete generatedMoves.capLeft;
         }
+        if (generatedMoves.capRight !== undefined) {
         //check that an enemy piece is present to capture right. If not, remove capRight
-        if (gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece().getColor() === this.color) {
-            delete generatedMoves.capRight;
+            if (gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capRight[0], generatedMoves.capRight[1]).getPiece().getColor() === this.color) {
+                delete generatedMoves.capRight;
+            }
         }
-        //check that an enemy piece is present to capture left. If not, remove capLeft
-        if (gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece().getColor() === this.color) {
-            delete generatedMoves.capLeft;
+        if (generatedMoves.capLeft !== undefined) {
+            //check that an enemy piece is present to capture left. If not, remove capLeft
+            if (gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece() === null || gameState.board.getSquare(generatedMoves.capLeft[0], generatedMoves.capLeft[1]).getPiece().getColor() === this.color) {
+                delete generatedMoves.capLeft;
+            }
         }
 
         return Object.values(generatedMoves);
