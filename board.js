@@ -45,20 +45,20 @@ class Board {
         pieces.push(new Bishop('white', [0, 5]));
         pieces.push(new Queen('white', [0, 3]));
         pieces.push(new King('white', [0, 4]));
-        for (let i = 0; i < gameState.board.getDims(); i++) {
-            pieces.push(new Pawn('white', [1, i]));
-        }
+        // for (let i = 0; i < gameState.board.getDims(); i++) {
+        //     pieces.push(new Pawn('white', [1, i]));
+        // }
         pieces.push(new Rook('black', [7, 0]));
         pieces.push(new Rook('black', [7, 7]));
         pieces.push(new Knight('black', [7, 1]));
         pieces.push(new Knight('black', [7, 6]));
         pieces.push(new Bishop('black', [7, 2]));
         pieces.push(new Bishop('black', [7, 5]));
-        pieces.push(new Queen('black', [7, 3]));
-        pieces.push(new King('black', [7, 4]));
-        for (let i = 0; i < gameState.board.getDims(); i++) {
-            pieces.push(new Pawn('black', [6, i]));
-        }
+        pieces.push(new Queen('black', [7, 4]));  // change me back to 7, 3 later - changed to chess check functionality
+        //pieces.push(new King('black', [7, 4]));
+        // for (let i = 0; i < gameState.board.getDims(); i++) {
+        //     pieces.push(new Pawn('black', [6, i]));
+        // }
         pieces.forEach(piece => {
             gameState.board.getPlayArea()[piece.position[0]][piece.position[1]].setPiece(piece);
         });
@@ -76,10 +76,20 @@ class Board {
         return piece;
     }
 
+    //discuss with Chris - is this any better or worse than how I've been doing it?
+    getPieceBySquare(coords) {
+        if (this.getSquare(coords[0], coords[1]).getPiece() === null) {
+            return 'no piece at that square';
+        } else {
+            return this.getSquare(coords[0], coords[1]).getPiece();
+        }
+    }
+
     getDims() {return this.dims;}
     getAlpha() {return this.alpha;}
     getSquare(rank, file) {return this.playArea[rank][file];}
     getPlayArea() {return this.playArea;}
+
 }
 
 

@@ -5,6 +5,10 @@ class GameState {
         this.board = new Board()
         this.moveList = [];
         this.currentMove = ['white', 'black'];
+        this.currentState = [
+            {player: 'white', pieceTotal: 0},
+            {player: 'black', pieceTotal: 0}
+        ]
     }
 
     move(piece, dest) {
@@ -31,10 +35,38 @@ class GameState {
         }) 
     }
 
-    checkForCheck() {
+    checkForCheck(attackSide, defSide) {
+        let attackingMoves = gameState.generateAllMovesByColor(attackSide).flat();
+        let kingPos = gameState.board.findPieceByName('king', defSide).position;
+
+        attackingMoves = attackingMoves.filter(move => this.moveComparator(move, kingPos));
+        
+        if (attackingMoves.length === 1) {
+            return 'in one attack check';
+        } else if (attackingMoves.length === 2) {
+            return 'in two attack check'
+        } else {
+            return 'not in check'
+        }
 
     }
 
+
+
+
+/*
+    turn sequence
+        check for check
+            if check, check for checkmate
+                if checkmate, game ends
+            if not checkmate, player must move to get out of check
+        if not check
+            take a move input
+                if move is valid - i.e., must be within valid moves array, must not put your king in check
+        
+        check for opponent check
+            if check, check for checkmate
+*/
 
 
 /*
@@ -47,6 +79,10 @@ look at the currentMove's king -
     after current move player has made a move, check again
         if still under attack, move is invalid
 
+
+
+    is it better to pull all moves as one array, or to pull an array contain each piece on side and then checking their valid moves one by one as we sequence through the array of objs?
+
 */
 
 
@@ -54,13 +90,7 @@ look at the currentMove's king -
 
 
     checkForCheckmate() {
-        let attackingMoves = [];
-
-        gameState.board.playArea.forEach(row => row.forEach(col => {
-            if (col.getPiece() !== null && col.getPiece().getColor() === this.currentMove[1]) {
-                attackingMoves.push(col.getPiece().valid_moves())
-            }
-        }))
+        let attackingMoves = gameState.generateAllMovesByColor(this.currentState[1].color);
         let king = gameState.board.findPieceByName('king', this.currentMove[0]);
         let kingMoves = king.valid_moves();
         console.log(kingMoves);
@@ -81,6 +111,17 @@ look at currentMove's king
     if king is in check and all valid moves are covered by enemy moves AND no pieces can block the check, return checkmate
 */
 
+    generateAllMovesByColor(color) {
+        let allMoves = [];
+
+        gameState.board.playArea.forEach(row => row.forEach(col => {
+            if (col.getPiece() !== null && col.getPiece().getColor() === color) {
+                allMoves.push(col.getPiece().valid_moves())
+            }
+        }))
+        return allMoves;
+    }
+
     moveComparator (possibleDest, desiredDest) {return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]);}
 }
 
@@ -95,8 +136,11 @@ gameState.board.assignNotation();
 gameState.board.assignColor();
 gameState.board.populatePieces();
 console.log(gameState.board.playArea);
-console.log(gameState.board.playArea);
-console.log(gameState.checkForCheckmate())
+console.log(gameState.checkForCheck('black', 'white'));
+
+
+// console.log(gameState.board.playArea);
+// console.log(gameState.checkForCheckmate())
 
 //console.log(board.playArea[0][0].getPiece().valid_moves());  
 
