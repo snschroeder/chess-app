@@ -77,6 +77,7 @@ class Board {
     }
 
     //discuss with Chris - is this any better or worse than how I've been doing it?
+    
     getPieceBySquare(coords) {
         if (this.getSquare(coords[0], coords[1]).getPiece() === null) {
             return 'no piece at that square';
@@ -113,8 +114,16 @@ class Piece {
     }
 
     //validates moves for rook, bishop, queen, and king
+
+    //can I use object destructuring here to unpack the variables and then repack them at the end?
+
     valid_moves() {
-        let generatedMoves = this._generate_move_sequences();
+
+        //let origin, moves = this._generate_move_sequences();
+
+        let generatedMoves = this._generate_move_sequences().moves;
+        let origin = this._generate_move_sequences().origin;
+
         generatedMoves = generatedMoves.map(direction => direction.filter(pos => !(pos[0] < 0 || pos[0] > gameState.board.getDims() -1 || pos[1] < 0 || pos[1] > gameState.board.getDims() -1)));
 
         generatedMoves.forEach((direction) => direction.forEach((pos, index) => {
@@ -124,7 +133,8 @@ class Piece {
                 direction.splice(index + 1);
             }
         }))
-        return generatedMoves.flat();
+
+        return {origin, generatedMoves};
 
     }
 
@@ -134,6 +144,7 @@ class Piece {
     getName() {return this.name;}
 }
 
+//Ask Chris about the object - can it be declared partially in the super class?
 
 class Rook extends Piece {
     constructor(color, position) {
@@ -151,7 +162,7 @@ class Rook extends Piece {
             rankDown.push([file, rank - i]);
         }
         moves.push(fileRight), moves.push(fileLeft), moves.push(rankUp), moves.push(rankDown);
-        return moves;
+        return {origin: this.position, moves: moves};
     }
     getHasNotMoved() {return this.hasNotMoved;}
 }
@@ -171,7 +182,7 @@ class Bishop extends Piece {
             downLeft.push([file -i, rank - i]);
         }
         moves.push(upRight), moves.push(upLeft), moves.push(downRight), moves.push(downLeft);
-        return moves;
+        return {origin: this.position, moves: moves};
     }
 }
 
@@ -191,7 +202,7 @@ class Knight extends Piece {
         moves.push([file - 1, rank + 2])
         moves.push([file - 1, rank - 2])
 
-        return moves;
+        return {origin: this.position, moves: moves};
     }
 
     valid_moves() {
@@ -222,7 +233,7 @@ class Queen extends Piece {
         }
         moves.push(upRight), moves.push(upLeft), moves.push(downRight), moves.push(downLeft);
         moves.push(rankUp), moves.push(rankDown), moves.push(fileRight), moves.push(fileLeft);
-        return moves;
+        return {origin: this.position, moves: moves};
     }
 }
 
@@ -246,7 +257,7 @@ class King extends Piece {
 
         moves.push(upRight), moves.push(upLeft), moves.push(downRight), moves.push(downLeft);
         moves.push(rankUp), moves.push(rankDown), moves.push(fileRight), moves.push(fileLeft);
-        return moves;
+        return {origin: this.position, moves: moves};
     }
 
     castle(direction) {
@@ -255,6 +266,8 @@ class King extends Piece {
 
     getHasNotMoved() {return this.hasNotMoved;}
 }
+
+// Pawn validate moves will take a second to update - look at this closer after class
 
 class Pawn extends Piece {
     constructor(color, position) {
@@ -280,14 +293,15 @@ class Pawn extends Piece {
         }
 
         if (this.color === 'white') {
-            return white_moves;
+            return {origin: this.position, moves: white_moves};
         } else {
-            return black_moves
+            return {black_moves: this.position, moves: black_moves};
         }
     }
 
     valid_moves() {
-        let generatedMoves = this._generate_move_sequences();
+        let generatedMoves = this._generate_move_sequences().moves;
+        let origin = this._generate_move_sequences().origin;
         //if moving forward one space would put the pawn off the board in either direction, delete both 
         if (generatedMoves.forward[0] > gameState.board.getDims() - 1 || generatedMoves.forward[0] < 0) {
             delete generatedMoves.forward;

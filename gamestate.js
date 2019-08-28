@@ -35,20 +35,19 @@ class GameState {
         }) 
     }
 
-    checkForCheck(attackSide, defSide) {
+    checkForCheck(kingPos, attackSide, defSide) {
         let attackingMoves = gameState.generateAllMovesByColor(attackSide).flat();
-        let kingPos = gameState.board.findPieceByName('king', defSide).position;
+        // let kingPos = gameState.board.findPieceByName('king', defSide).position;
 
         attackingMoves = attackingMoves.filter(move => this.moveComparator(move, kingPos));
         
         if (attackingMoves.length === 1) {
-            return 'in one attack check';
+            return 1;
         } else if (attackingMoves.length === 2) {
-            return 'in two attack check'
+            return 2;
         } else {
-            return 'not in check'
+            return 0;
         }
-
     }
 
 
@@ -89,21 +88,54 @@ look at the currentMove's king -
 
 
 
-    checkForCheckmate() {
-        let attackingMoves = gameState.generateAllMovesByColor(this.currentState[1].color);
-        let king = gameState.board.findPieceByName('king', this.currentMove[0]);
-        let kingMoves = king.valid_moves();
-        console.log(kingMoves);
+    checkForCheckmate(attackSide, defSide) {
+        let check = this.checkForCheck(attackSide, defSide);
+        let defKing = gameState.board.findPieceByName('king', defSide);
+        let kingMoves = defKing.valid_moves();
+        let kingPos = defKing.position;
+
+        let attackingMoves = gameState.generateAllMovesByColor(attackSide).flat();
+        let defMoves = gameState.generateAllMovesByColor(defSide).flat();
+
+        console.log(kingPos)
+        console.log(attackingMoves);
+        console.log(defMoves)
+
+        if (check === 2) {
+            kingMoves.filter(move => {
+                attackingMoves.forEach(attackingMove => {
+                    return (!this.moveComparator(move, attackingMove))
+                })
+            })
+            if (kingMoves.length === 0) {
+            return 'checkmate'
+            } else {
+                kingMoves.forEach(move => {
+                    if (this.checkForCheck(move, attackSide, defSide) === 1 || this.checkForCheck(move, attackSide, defSide) === 2) {
+                        return 'checkmate'
+                    }
+                })
+            }
+        } else {
+
+
+
+        }
+
+        // let attackingMoves = gameState.generateAllMovesByColor(this.currentState[1].color);
+        // let king = gameState.board.findPieceByName('king', this.currentMove[0]);
+        // let kingMoves = king.valid_moves();
+        // console.log(kingMoves);
         
 
-        kingMoves.filter(move => {
-            attackingMoves.forEach(attackingMove => {
-                return (!this.moveComparator(move, attackingMove))
-            })
-        })
-        if (kingMoves.length === 0) {
-            return 'checkmate'
-        }
+        // kingMoves.filter(move => {
+        //     attackingMoves.forEach(attackingMove => {
+        //         return (!this.moveComparator(move, attackingMove))
+        //     })
+        // })
+        // if (kingMoves.length === 0) {
+        //     return 'checkmate'
+        // }
 
     }
 /*
@@ -122,6 +154,10 @@ look at currentMove's king
         return allMoves;
     }
 
+    checkIfBlocking(move, kingPos) {
+        for (let i = 1; i < gameState.board.getDims(); i++) {}
+    }
+
     moveComparator (possibleDest, desiredDest) {return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]);}
 }
 
@@ -136,7 +172,12 @@ gameState.board.assignNotation();
 gameState.board.assignColor();
 gameState.board.populatePieces();
 console.log(gameState.board.playArea);
-console.log(gameState.checkForCheck('black', 'white'));
+
+console.log(gameState.board.getSquare(0, 3).getPiece().valid_moves());
+
+
+// console.log(gameState.checkForCheck('black', 'white'));
+// console.log(gameState.checkForCheckmate('black', 'white'));
 
 
 // console.log(gameState.board.playArea);
@@ -151,7 +192,7 @@ console.log(gameState.checkForCheck('black', 'white'));
 // const white_queen = new Queen('white', [0, 0]);
 
 
-// console.log(white_rook.valid_moves());
+
 // console.log(white_bishop.valid_moves());
 // console.log(white_queen.valid_moves());
 
