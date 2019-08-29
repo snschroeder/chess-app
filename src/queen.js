@@ -1,3 +1,5 @@
+import Piece from './piece';
+
 export default class Queen extends Piece {
     constructor(color, position) {
         super(color, position, 'queen', 9);

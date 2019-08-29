@@ -1,3 +1,5 @@
+import Piece from './piece';
+
 export default class Pawn extends Piece {
     constructor(color, position) {
         super(color, position, 'pawn', 1);

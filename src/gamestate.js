@@ -1,6 +1,6 @@
-import Board from './modules/board';
+import Board from './board';
 
-class GameState {
+export default class GameState {
     constructor() {
         this.board = new Board()
         this.moveList = [];
@@ -172,8 +172,9 @@ look at currentMove's king
     // }
 
 
+    getBoard() {return this.board;}
 
-
+    getPlayarea() {return this.board.playArea;}
 
     moveComparator (possibleDest, desiredDest) {return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]);}
 }
@@ -183,14 +184,16 @@ look at currentMove's king
 
 
 
-gameState = new GameState();
+let gameState = new GameState();
 gameState.board.createBoard();
 gameState.board.assignNotation();
 gameState.board.assignColor();
+
 gameState.board.populatePieces();
 console.log(gameState.board.playArea);
+console.log(gameState.board.playArea[0][0].getPiece().valid_moves()); 
 
-console.log(gameState.checkForCheck([0, 4], 'white'));
+// console.log(gameState.checkForCheck([0, 4], 'white'));
 
 
 
@@ -206,7 +209,7 @@ console.log(gameState.checkForCheck([0, 4], 'white'));
 // console.log(gameState.board.playArea);
 // console.log(gameState.checkForCheckmate())
 
-//console.log(board.playArea[0][0].getPiece().valid_moves());  
+ 
 
 // const white_rook = new Rook('white', [3, 3]);
 

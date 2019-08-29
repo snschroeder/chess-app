@@ -1,13 +1,17 @@
-module.export.Rook = class Rook extends Piece {
+import Piece from './piece';
+import GameState from './gamestate';
+
+export default class Rook extends Piece {
     constructor(color, position) {
         super(color, position, 'rook', 5);
         this.hasNotMoved = true;
+        this.board = GameState.board;
     }
     _generate_move_sequences() {
         let moves = [], rankUp = [], rankDown = [], fileRight = [], fileLeft = [];
         let file = this.position[0], rank = this.position[1];
 
-        for (let i = 1; i < gameState.board.getDims(); i++) {
+        for (let i = 1; i < 8; i++) {
             fileRight.push([file + i, rank]);
             fileLeft.push([file - i, rank]);
             rankUp.push([file, rank + i]);

@@ -1,3 +1,5 @@
+import Piece from './piece';
+
 export default class King extends Piece {
     constructor(color, position) {
         super(color, position, 'king', Number.POSITIVE_INFINITY);
