@@ -1,4 +1,4 @@
-let gameState;
+import Board from './modules/board';
 
 class GameState {
     constructor() {
@@ -35,11 +35,9 @@ class GameState {
         }) 
     }
 
-    checkForCheck(kingPos, attackSide, defSide) {
+    checkForCheck(kingPos, attackSide) {
         let attackingMoves = gameState.generateAllMovesByColor(attackSide).flat();
-        // let kingPos = gameState.board.findPieceByName('king', defSide).position;
-
-        attackingMoves = attackingMoves.filter(move => this.moveComparator(move, kingPos));
+        attackingMoves = attackingMoves.filter(move => this.moveComparator(move, kingPos))
         
         if (attackingMoves.length === 1) {
             return 1;
@@ -142,21 +140,40 @@ look at the currentMove's king -
 look at currentMove's king
     if king is in check and all valid moves are covered by enemy moves AND no pieces can block the check, return checkmate
 */
+    /**
+     * 
+     * @param {string} color - 'white' or 'black'
+     * @returns {array} array of arrays with all possible moves for the color selected
+     * 
+     */
 
+
+     // add origin here
     generateAllMovesByColor(color) {
         let allMoves = [];
 
         gameState.board.playArea.forEach(row => row.forEach(col => {
-            if (col.getPiece() !== null && col.getPiece().getColor() === color) {
-                allMoves.push(col.getPiece().valid_moves())
+            if (col.getPiece() !== null && col.getPiece().getColor() === color && ['queen', 'bishop', 'rook'].includes(col.getPiece().getName())) {
+                allMoves.push(col.getPiece().valid_moves().moves.flat())
+            } else if (col.getPiece() !== null && col.getPiece().getColor()) {
+                allMoves.push(col.getPiece().valid_moves().moves)
             }
         }))
         return allMoves;
     }
 
-    checkIfBlocking(move, kingPos) {
-        for (let i = 1; i < gameState.board.getDims(); i++) {}
-    }
+
+    // generateAllMoveOriginObjs(color) {
+    //     let moveOrigin = [];
+    //         gameState.board.playArea.forEach(row => row.forEach(col => {
+    //             if (col.getPiece() !== null && col.getPiece().getColor()) {
+    //                 moveOrigin.push(col.getPiece().valid_moves())
+    //             }
+    // }
+
+
+
+
 
     moveComparator (possibleDest, desiredDest) {return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]);}
 }
@@ -173,10 +190,16 @@ gameState.board.assignColor();
 gameState.board.populatePieces();
 console.log(gameState.board.playArea);
 
-console.log(gameState.board.getSquare(0, 3).getPiece().valid_moves());
+console.log(gameState.checkForCheck([0, 4], 'white'));
 
 
-// console.log(gameState.checkForCheck('black', 'white'));
+
+
+// console.log(gameState.board.getSquare(1, 1).getPiece().valid_moves());
+//console.log(gameState.generateAllMovesByColor('black'));
+
+
+
 // console.log(gameState.checkForCheckmate('black', 'white'));
 
 

@@ -1,4 +1,4 @@
-class Square {
+export default class Square {
     constructor(rank, file) {
         this.letter = 'ABCDEFGH'[file];
         this.number = rank + 1;
