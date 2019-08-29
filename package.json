@@ -1,0 +1,20 @@
+{
+  "name": "chess-logic",
+  "version": "1.0.0",
+  "description": "The aim of this project is to create a web based chess application",
+  "main": "gamestate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snschroeder/chess-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/snschroeder/chess-app/issues"
+  },
+  "homepage": "https://github.com/snschroeder/chess-app#readme"
+}
