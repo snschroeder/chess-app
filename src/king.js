@@ -1,9 +1,10 @@
 import Piece from './piece';
 
 export default class King extends Piece {
-    constructor(color, position) {
-        super(color, position, 'king', Number.POSITIVE_INFINITY);
+    constructor(color, position, board) {
+        super(color, position, board, 'king', Number.POSITIVE_INFINITY);
         this.hasNotMoved = true;
+        this.board = board;
     }
     _generate_move_sequences() {
         const moves = [], upRight = [], upLeft = [], downRight = [], downLeft = [], rankUp = [],rankDown = [], fileRight = [], fileLeft = [];

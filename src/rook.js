@@ -1,11 +1,10 @@
 import Piece from './piece';
-import GameState from './gamestate';
 
 export default class Rook extends Piece {
-    constructor(color, position) {
-        super(color, position, 'rook', 5);
+    constructor(color, position, board) {
+        super(color, position, board, 'rook', 5);
         this.hasNotMoved = true;
-        this.board = GameState.board;
+        this.board = board;
     }
     _generate_move_sequences() {
         let moves = [], rankUp = [], rankDown = [], fileRight = [], fileLeft = [];
