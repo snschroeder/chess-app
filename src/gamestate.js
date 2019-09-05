@@ -31,13 +31,13 @@ export default class GameState {
         // for (let i = 0; i < this.board.getDims(); i++) {
         //     pieces.push(new Pawn('white', [1, i], this.board));
         // }
-        pieces.push(new Rook('black', [1, 0], this.board));
-        pieces.push(new Rook('black', [7, 7], this.board));
-        pieces.push(new Knight('black', [7, 1], this.board));
-        pieces.push(new Knight('black', [7, 6], this.board));
-        pieces.push(new Bishop('black', [7, 2], this.board));
-        pieces.push(new Bishop('black', [7, 5], this.board));
-        pieces.push(new Queen('black', [0, 0], this.board));
+        // pieces.push(new Rook('black', [2, 0], this.board));
+        // pieces.push(new Rook('black', [7, 7], this.board));
+        // pieces.push(new Knight('black', [7, 1], this.board));
+        // pieces.push(new Knight('black', [7, 6], this.board));
+        // pieces.push(new Bishop('black', [7, 2], this.board));
+        // pieces.push(new Bishop('black', [7, 5], this.board));
+        pieces.push(new Queen('black', [3, 3], this.board));
         // pieces.push(new King('black', [7, 4], this.board));
         // for (let i = 0; i < this.board.getDims(); i++) {
         //     pieces.push(new Pawn('black', [6, i], this.board));
@@ -90,10 +90,12 @@ export default class GameState {
         let kingPos = defKing.position;
 
         let attackInfo = this.generateAllAttackerInfo(attackSide);
-        let attackMoves = this.generateAllMovesByColor(attackSide);
-        let defMoves = this.generateAllMovesByColor(defSide);
 
-        // attackInfo.filter(piece => piece.moves.some(move => this.moveComparator(move, kingPos)));
+        let defMoves = this.generateAllMovesByColor(defSide);
+        let blockMoves = this.generateAllMovesByColor(defSide);
+
+        console.log(defMoves)
+
         let attackers = [];
 
         for (let i = 0; i < attackInfo.length; i++) {
@@ -106,149 +108,140 @@ export default class GameState {
         console.log(attackers);
 
         if (attackers.length === 2) {
-            return this.checkForMove(attackMoves, kingPos);
+            console.log('inside double check')
+            console.log(this.checkForMoves(attackers, defKing))
+            return this.checkForMoves(attackers, defKing);
         } else {
             if (attackers[0].name === 'knight' || attackers[0].name === 'pawn') {
-                return this.checkForCapture(attackers[0].origin, defMoves && this.checkForMoves(attackMoves, kingPos))
+                console.log(this.checkForCapture(attackers[0].origin, defMoves && this.checkForMoves(attackers, defKing)))
+                return this.checkForCapture(attackers[0].origin, defMoves && this.checkForMoves(attackers, defKing))
 
             } else {
+                console.log('inside rook or queen or bishop')
                 let blocks = this.generateBlockingSquares(attackers[0], kingPos);
-                defMoves.filter(move => {
+                blockMoves = blockMoves.filter(move => {
                     blocks.forEach(block => {
                         return this.moveComparator(move, block)
                     })
                 })
-                return this.checkForCapture(attackers[0].origin, defMoves) && this.checkForMoves(attackers[0], kingPos) && defMoves.length === 0
+                console.log(defMoves);
+                return !this.checkForCapture(attackers[0].origin, defMoves) && !this.checkForMoves(attackers, defKing) && blockMoves.length === 0
             }
         }
     }
+
+    /**
+     * 
+     * @param {Array} attackerPos - coord position of the attacker [1, 1], etc.
+     * @param {Nested Array} defMoves - nest array of possible defensive moves [1, 1], [3, 5] etc.
+     * @returns {boolean} - false if there are no moves that capture the attacking piece, true otherwise
+     */
 
     checkForCapture(attackerPos, defMoves) {
-        defMoves = defMoves.filter(move => !this.moveComparator(move, attackerPos));
-        return defMoves.length === 0 ? true : false;
+        defMoves = defMoves.filter(move => this.moveComparator(move, attackerPos));
+        return defMoves.length === 0 ? false : true;
     }
 
+    /**
+     * 
+     * @param {object} attacker -object containing attacker name, origin, valid moves
+     * @param {array} kingPos - array coords of king's position in the form of [1, 1], etc.
+     * @returns {array} - returns array of all eligible blocking moves that the defending side can make
+     */
     generateBlockingSquares(attacker, kingPos) {
-        let direction;
         let blocks = [];
 
-        if (attacker.origin[0] === kingPos[0]) {
-            direction = Math.sign(attacker.origin[1] - kingPos[1]);
-            for (let i = 1; i < Math.abs(attacker.origin[1] - kingPos[1]); i++) {
-                blocks.push([attacker.origin[0], i * direction]);
-            }
+        let direction = [Math.sign(kingPos[0] - attacker.origin[0]), Math.sign(kingPos[1] - attacker.origin[1])];
+        let dist = Math.max(Math.abs(attacker.origin[0] - kingPos[0]), Math.abs(attacker.origin[1] - kingPos[1]))
 
-        } else if (attacker.origin[1] === kingPos[1]) {
-            direction = Math.sign(attacker.origin[0] - kingPos[0]);
-            for (let i = 1; i < Math.abs(attacker.origin[0] - kingPos[0]); i++) {
-                blocks.push([i * direction, attacker.origin[1]]);
-            }
-
-        } else {
-            if (attacker.origin[0] > kingPos[0] && attacker.origin[1] > kingPos[1]) {
-                direction = [Math.sign(kingPos[0] - attacker.origin[0]), Math.sign(kingPos[1] - attacker.origin[1])];
-            } else {
-                direction = [Math.sign(attacker.origin[0] - kingPos[0]), Math.sign(attacker.origin[1] - kingPos[1])];
-            }
-            for (let i = 1; i < Math.abs(attacker.origin[0] - kingPos[0]); i++) {
-                blocks.push([attacker.origin[0] + (i * direction[1]), attacker.origin[1] + (i * direction[0])]);
-            }
+        for (let i = 1; i < dist; i++) {
+            blocks.push([attacker.origin[0] + (i * direction[0]), attacker.origin[1] + (i * direction[1])]);
         }
-
-        return blocks.map(pair => pair.map(val => val = Math.abs(val)));
+        return blocks;
     }
 
-    checkForMove(attackers, king) {
-
+    checkForMoves(attackers, king) {
         let attackingMoves = this.generateAllMovesByColor(attackers[0].color);
         let kingMoves = king.valid_moves();
-
-        let direction;
+        let kingPos = king.position;
+        let direction = [];
 
         kingMoves = kingMoves.filter(move => {
             attackingMoves.forEach(attackingMove => {
                 return (!this.moveComparator(move, attackingMove))
             })
         })
+
         if (kingMoves.length === 0) {
             return false;
         }
+        direction.push(attackers.forEach(attacker => [Math.sign(kingPos[0] - attacker.origin[0]), Math.sign(kingPos[1] - attacker.origin[1])]));
 
-        if (attacker.origin[0] === kingPos[0]) {
-            direction = Math.sign(attacker.origin[1] - kingPos[1]);
-            kingMoves.filter(move => !(this.moveComparator(move, [attacker.origin[0], kingPos[1] + direction])))
+        direction = direction.map(dir => [kingPos[0] + dir[0], kingPos[1] + dir[1]]);
 
-        } else if (attacker.origin[1] === kingPos[1]) {
-            direction = Math.sign(attacker.origin[0] - kingPos[0]);
-            kingMoves.filter(move => !(this.moveComparator(move, [kingPos[0] + direction, attacker.orgin[1]])))
-
+        kingMoves = kingMoves.filter(move => {
+            direction.forEach(dir => {
+                return (!this.moveComparator(move, dir))
+            })
+        })
+        
+        if (kingMoves.length === 0) {
+            return false;
         } else {
-            if (attacker.origin[0] > kingPos[0] && attacker.origin[1] > kingPos[1]) {
-                direction = [Math.sign(kingPos[0] - attacker.origin[0]), Math.sign(kingPos[1] - attacker.origin[1])];
-            } else {
-                direction = [Math.sign(attacker.origin[0] - kingPos[0]), Math.sign(attacker.origin[1] - kingPos[1])];
-            }
-            kingMoves.filter(move => !(this.moveComparator(move, [kingPos[0] + direction, kingPos[1] + direction])))
+            return true;
         }
-        return kingMoves.length === 0 ? false : true;
 
+    }
 
+    moveResultsInCheck(piece, move, kingPos, attackColor) {
+        let piecePos = piece.position;
+        
+        this.board.getSquare(move[0], move[1]).setPiece(piece);
+        this.board.getSquare(piecePos[0], piecePos[1]).removePiece();
 
-        //determine traj, if escape is same direction, not valid
+        let check = this.checkForCheck(kingPos, attackColor);
 
+        this.board.getSquare(piecePos[0], piecePos[1]).setPiece(piece);
+        this.board.getSquare(move[0], move[1]).removePiece();
 
-
-        // kingMoves.filter(move => {
-        //     attackingMoves.forEach(attackingMove => {
-        //         return (!this.moveComparator(move, attackingMove))
-        //     })
-        // })
-        // if (kingMoves.length === 0) {
-        //     return false;
-        // } else {
-        //     kingMoves.forEach(move => {
-        //         king.position = move;
-        //         attackingMoves = 
-        //         if (this.checkForCheck(move, attackSide) === 1 || this.checkForCheck(move, attackSide) === 2) {
-        //             return false;
-        //         }
-        //     })
-        // }
-        // return true;
+        if (check === 1 || check === 2) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
+/**
+ * 
+ * @param {string} color - 'white' or 'black'
+ * @returns {array} array of arrays with all possible moves for the color selected
+ * 
+ */
 
-    /**
-     * 
-     * @param {string} color - 'white' or 'black'
-     * @returns {array} array of arrays with all possible moves for the color selected
-     * 
-     */
+generateAllMovesByColor(color) {
+    let allMoves = [];
 
-    generateAllMovesByColor(color) {
-        let allMoves = [];
+    this.board.playArea.forEach(row => row.forEach(col => {
+        if (col.getPiece() !== null && col.getPiece().getColor() === color) {
+            allMoves.push(col.getPiece().valid_moves());
+        }
+    }));
+    return allMoves.flat();
+}
 
-        this.board.playArea.forEach(row => row.forEach(col => {
-            if (col.getPiece() !== null && col.getPiece().getColor() === color) {
-                allMoves.push(col.getPiece().valid_moves());
-            }
-        }));
-        return allMoves.flat();
-    }
+generateAllAttackerInfo(color) {
+    let allMoves = [];
 
-    generateAllAttackerInfo(color) {
-        let allMoves = [];
+    this.board.playArea.forEach(row => row.forEach(col => {
+        if (col.getPiece() !== null && col.getPiece().getColor() === color) {
+            allMoves.push({ name: col.getPiece().name, origin: col.getPiece().position, moves: col.getPiece().valid_moves() });
+        }
+    }));
+    return allMoves;
+}
 
-        this.board.playArea.forEach(row => row.forEach(col => {
-            if (col.getPiece() !== null && col.getPiece().getColor() === color) {
-                allMoves.push({ name: col.getPiece().name, origin: col.getPiece().position, moves: col.getPiece().valid_moves() });
-            }
-        }));
-        return allMoves;
-    }
-
-    moveComparator(possibleDest, desiredDest) { return (possibleDest[0] === desiredDest[0] && possibleDest[1] === desiredDest[1]); }
+moveComparator(firstPos, secondPos) { return (firstPos[0] === secondPos[0] && firstPos[1] === secondPos[1]); }
 }
 
 
@@ -267,99 +260,8 @@ gameState.generateStartPosition();
 console.log(gameState.board.playArea);
 
 
-// console.log(gameState.board.playArea[7][3].getPiece().name); 
-
-// console.log(gameState.checkForCheck([0, 4], 'black'));
 
 
-
-
-// // console.log(gameState.board.getSquare(1, 1).getPiece().valid_moves());
-// console.log(gameState.generateAllMovesByColor('black'));
-
-
-
-console.log(gameState.checkForCheckmate('black', 'white'));
-
-
-// console.log(gameState.board.playArea);
-// console.log(gameState.checkForCheckmate())
-
-
-
-// const white_rook = new Rook('white', [3, 3]);
-
-// const white_bishop = new Bishop('white', [2, 3]);
-
-// const white_queen = new Queen('white', [0, 0]);
-
-
-
-// console.log(white_bishop.valid_moves());
-// console.log(white_queen.valid_moves());
-
-
-// gameState.move(gameState.board.playArea[1][3].getPiece(), [2, 3]);
-// gameState.move(gameState.board.playArea[6][3].getPiece(), [4, 3]);
-
-//  getSquareByCoord(rank, file) {return this.board.getSquare(rank, file);}
-
-
-
-
-/*
-    turn sequence
-        check for check
-            if check, check for checkmate
-                if checkmate, game ends
-            if not checkmate, player must move to get out of check
-        if not check
-            take a move input
-                if move is valid - i.e., must be within valid moves array, must not put your king in check
-
-        check for opponent check
-            if check, check for checkmate
-*/
-
-
-
-/*
-look at the currentMove's king -
-    run a check for all opposite color pieces, pulling in their valid moves. Combine these into one array
-    if one of the moves hits the king, king can move, or a piece can block
-
-    if two options hit the king's current square, can only move the king
-
-    after current move player has made a move, check again
-        if still under attack, move is invalid
-
-
-
-    is it better to pull all moves as one array, or to pull an array contain each piece on side and then checking their valid moves one by one as we sequence through the array of objs?
-
-*/
-
-
-        // let attackingMoves = gameState.generateAllMovesByColor(this.currentState[1].color);
-        // let king = gameState.board.findPieceByName('king', this.currentMove[0]);
-        // let kingMoves = king.valid_moves();
-        // console.log(kingMoves);
-
-
-        // kingMoves.filter(move => {
-        //     attackingMoves.forEach(attackingMove => {
-        //         return (!this.moveComparator(move, attackingMove))
-        //     })
-        // })
-        // if (kingMoves.length === 0) {
-        //     return 'checkmate'
-        // }
-
-
-            // generateAllMoveOriginObjs(color) {
-    //     let moveOrigin = [];
-    //         gameState.board.playArea.forEach(row => row.forEach(col => {
-    //             if (col.getPiece() !== null && col.getPiece().getColor()) {
-    //                 moveOrigin.push(col.getPiece().valid_moves())
-    //             }
-    // }
+if (gameState.checkForCheck([0, 4], 'black') === 1 || gameState.checkForCheck([0, 4], 'black') === 2) {
+    console.log(gameState.checkForCheckmate('black', 'white'));
+}
