@@ -28,4 +28,5 @@ export default class Piece {
     getColor() {return this.color;}
     getPosition() {return this.position;}
     getName() {return this.name;}
+    getValue() {return this.value;}
 }
