@@ -37,6 +37,18 @@ export default class Board {
         }
     }
 
+    findKing(color) {
+        let piece;
+        this.playArea.forEach(row => row.forEach(col => {
+            if (col.getPiece() !== null) {
+                if (col.getPiece().getName() === 'king' && col.getPiece().getColor() === color) {
+                    piece = col.getPiece();
+                }
+            }
+        }))  
+        return piece;
+    }
+
     findPieceByName(name, color) {
         let piece;
         this.playArea.forEach(row => row.forEach(col => {
