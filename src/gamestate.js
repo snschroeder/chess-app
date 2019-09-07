@@ -51,7 +51,7 @@ export default class GameState {
         let newPieceTotal = 0;
 
         this.board.playArea.forEach(row => row.forEach(col => {
-            if (col.getPiece() !== null) {
+            if (col.getPiece() !== null && col.getPiece().getName() !== 'king') {
                 if (col.getPiece().getColor() === color) {
                     newPieceTotal += col.getPiece().getValue()
                 }
@@ -66,8 +66,6 @@ export default class GameState {
             }
         })
     }
-
-
 
 
     /**
@@ -107,10 +105,6 @@ export default class GameState {
 
     posComparator(firstPos, secondPos) { return (firstPos[0] === secondPos[0] && firstPos[1] === secondPos[1]); }
 
-
-
-
-
     /**
      * 
      * @param {array} kingPos - array indicating the king's position on the board 
@@ -130,7 +124,6 @@ export default class GameState {
             return 0;
         }
     }
-
 
     /**
      * 
@@ -215,8 +208,10 @@ export default class GameState {
 
     turn(piece, move) {
         let currPlayer = this.currentState[0].player;
+        let opponent = this.currentState[1].player;
+
         let king = this.board.findKing(currPlayer);
-        let check = this.checkForCheck(king.position, this.currentState[1].player)
+        let check = this.checkForCheck(king.position, opponent)
         let legalMoves = this.generateAllLegalMoves(currPlayer)
         let legalMovesCount = 0;
 
@@ -235,6 +230,8 @@ export default class GameState {
             }
         }
         this.move(piece, move);
+        this.calculatePieceTotal(currPlayer);
+        this.calculatePieceTotal(opponent);
     }
 }
 
