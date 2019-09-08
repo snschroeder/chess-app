@@ -62,11 +62,8 @@ export default class Board {
     }
     
     getPieceBySquare(coords) {
-        if (this.getSquare(coords[0], coords[1]).getPiece() === null) {
-            return 'no piece at that square';
-        } else {
-            return this.getSquare(coords[0], coords[1]).getPiece();
-        }
+        return this.getSquare(coords[0], coords[1]).getPiece();
+    
     }
 
     getDims() {return this.dims;}
