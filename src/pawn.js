@@ -75,4 +75,5 @@ export default class Pawn extends Piece {
         }
 
     getHasNotMoved() {return this.hasNotMoved;}
+    hasMoved() {this.hasNotMoved = false;}
 }

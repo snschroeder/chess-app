@@ -20,4 +20,5 @@ export default class Rook extends Piece {
         return moves;
     }
     getHasNotMoved() {return this.hasNotMoved;}
+    hasMoved() {this.hasNotMoved = false;}
 }

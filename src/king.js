@@ -25,8 +25,5 @@ export default class King extends Piece {
     }
 
     getHasNotMoved() {return this.hasNotMoved;}
+    hasMoved() {this.hasNotMoved = false;}
 }
-
-/*
-if the king is not in check and if the king has not moved and if the rook has not moved, move two squares, move rook three squares
-*/

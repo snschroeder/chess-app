@@ -16,7 +16,6 @@ export default class Knight extends Piece {
         moves.push([file - 2, rank -1])
         moves.push([file - 1, rank + 2])
         moves.push([file - 1, rank - 2])
-
         return moves;
     }
 
