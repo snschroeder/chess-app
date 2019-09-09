@@ -70,7 +70,7 @@ export default class Pawn extends Piece {
                 delete generatedMoves.capLeft;
             }
         }
-
+        this.moves = Object.values(generatedMoves);
         return Object.values(generatedMoves);
         }
 

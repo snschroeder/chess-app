@@ -5,6 +5,7 @@ export default class Piece {
         this.name = name;
         this.value = value;
         this.board = board;
+        this.moves = [];
     }
 
     valid_moves() {
@@ -20,7 +21,7 @@ export default class Piece {
                 direction.splice(index + 1);
             }
         }))
-
+        this.moves = generatedMoves.flat();
         return generatedMoves.flat();
     }
 

@@ -24,6 +24,7 @@ export default class Knight extends Piece {
 
         generatedMoves = generatedMoves.filter(pos => !(pos[0] < 0 || pos[0] > this.board.getDims() -1 || pos[1] < 0 || pos[1] > this.board.getDims() -1));
         generatedMoves = generatedMoves.filter(move => this.board.getSquare(move[0], move[1]).getPiece() === null || this.board.getSquare(move[0], move[1]).getPiece().getColor() !== this.color);
+        this.moves = generatedMoves;
         return generatedMoves;
     }
 }
